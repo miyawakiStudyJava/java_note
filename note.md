@@ -71,6 +71,22 @@ int length = "abcdef".length();
 int result = "abcd".indexOf( "cd" ) // 見つかった場合はその位置、見つからなかった場合は-1が返る
 ```
 
+キャスト
+```java
+// (1) 数値型のサイズ縮小
+int intValue = 10;
+byte byteValue = (byte) intValue;
+
+// (2) 数値 (整数型) から数値 (浮動小数点型) へのサイズ拡大
+int x = 3;
+int y = 2;
+double d = (double) x / (double) y;
+
+// (3) スーパークラスの参照からサブクラスの参照への変換
+// number のインスタンスが BigDecimal であること
+BigDecimal decimal = (Number) number;
+```
+
 配列のコピー
 ```java
 int[] from = new int[] { 1, 2, 3 };
@@ -122,3 +138,18 @@ var
 //var x; のように右辺式を省略したり、var x = 123, y = 1.234; のように複数の変数を宣言することはできません。
 var 変数名 = 初期値;
 ```
+
+例外
+|例外クラス|	チェック|	意味|
+|---|---|---|
+|Exception	|○	|すべての例外のスーパークラス|
+|IOException	|○	|I/O 処理でエラーが発生した|
+|SQLException	|○	|JDBC での SQL 実行時にエラーが発生した|
+|RuntimeException	|×	|被チェック例外 (ランタイム例外) のスーパークラス|
+|NullPointerException	|×	|引数が null である|
+|ClassCastException	|×	|データ型のキャストに失敗した|
+|IllegalArgumentException	|×	|引数に不正な値が渡された (引数が null の場合にも用いる場合がある)|
+|NumberFormatException	|×	|文字列が数値に変換できない書式になっている|
+|ArithmeticException	|×	|異常な算術演算が行われた、例えば数値を 0 で割ったなど|
+|UnsupportedOperationException	|×	|メソッドの実行はサポートされていない|
+|UncatchedIOException	|×	|(後述の catch 節にて) IOException を非チェック例外に変換する|
