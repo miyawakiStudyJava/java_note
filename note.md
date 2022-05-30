@@ -153,3 +153,121 @@ var 変数名 = 初期値;
 |ArithmeticException	|×	|異常な算術演算が行われた、例えば数値を 0 で割ったなど|
 |UnsupportedOperationException	|×	|メソッドの実行はサポートされていない|
 |UncatchedIOException	|×	|(後述の catch 節にて) IOException を非チェック例外に変換する|
+
+例外の再スロー
+```java
+public int read(byte[] buf) throws IOException {
+    ...
+    try {
+        ...
+    } catch (IOException e) {
+        ...
+        // 例外の再スロー
+        throw e;
+    }
+    ...
+}
+```
+例外の再スローは、例えば例外をキャッチした記録だけを取り、その他の処理を呼び出し元に委ねる場合などに使用します。
+
+例外の付け替え
+```java
+public int read(byte[] buf) throws Exception {
+    ...
+    try {
+        ...
+    } catch (IOException e) {
+        ...
+        // アプリケーション独自の ApplicationException に付け替える
+        throw new ApplicationException("ERROR-00600");
+    }
+    ...
+}
+```
+例外の付け替えは、チェック例外を非チェック例外に変える場合や、Java 標準の例外をアプリケーション独自の例外に変える場合などに使用します。特に非チェック例外への変換は、呼び出し元でのキャッチが不要になるため、特別なリカバリ処理を要しないアプリケーションに向いています。
+
+
+例外連鎖
+付け替えた例外オブジェクトに元の例外オブジェクトを関連付けてスローすることができます。これを「例外連鎖」といい、元の例外オブジェクトを「原因例外」と呼びます。例外連鎖は原則として Java 標準 API に含まれる例外クラスにはすべて備わっており、例外クラスのコンストラクタの引数に原因例外を設定する書式が存在しています。例外連鎖を使用するか否かはプログラマの裁量に委ねられますが、より多くの情報を呼び出し元に伝えることができるため、可能な限り使用した方が良いでしょう (呼び出し元で原因例外の情報が不要であれば無視することもできます)。
+
+ただし、例外連鎖の実装は必須ではなく、特にユーザーが実装した例外クラスでは例外連鎖がサポートされていない場合があります。反対に、例外連鎖を必須とする例外クラス (コンストラクタの引数に原因例外を必ず設定しなければならない) も存在します。Java 標準 API の InvocationTargetException や UncheckedIOException は例外連鎖が必須となる代表例です。
+
+```java
+public int read(byte[] buf) {
+    ...
+    try {
+        ...
+    } catch (IOException e) {
+        throw new UncheckedIOException(e);
+    }
+    ...
+}
+
+public void doProcess() {
+    ...
+    try {
+        ...
+    } catch (UncheckedIOException e) {
+        // e.getCause() で原因例外 (ここでは IOException のインスタンス) を取得する
+        // 原因例外が設定されていない場合は e.getCause() の値が null となるため、その対策をしておく
+        // (ただし UncheckedIOException に限っては必ず原因例外を持つため、対策はなくても可)
+        if (e.getCause() != null) {
+            // e.getCause().printStackTrace() で標準エラー出力に例外のスタックトレースを出力する
+            // スタックトレースは例外がスローされてから Java VM に届くまで (= プログラムが停止するまで) の詳細な記録である
+            // 原因例外を含むすべての例外の情報を含み、プログラム中で例外がスローされた箇所が特定されている
+            e.getCause().printStackTrace();
+        }
+    }
+    ...
+}
+```
+
+## 例外処理で避けたいこと
+### catch 節で何もしない
+try-catch 文で例外をキャッチしても、catch 節で何も処理をしないと、原因をわからなくするどころか例外自体をなかったことにしてしまいます。これを俗に「例外を握りつぶす」行為といい、Java の開発現場で最も忌避される手法です (その割に例外を握りつぶしてしまう人が後を絶たないのは困りものですが)。例外を握りつぶすことは、例外処理の機構そのものを破壊することとほぼ等しいため、絶対に行わないようにしましょう。
+
+### RuntimeException の濫用と例外連鎖の不使用の組み合わせ
+RuntimeException は標準で用意されている汎用の非チェック例外であり、呼び出し元で try-catch 文を使用する必要がなくなるため、使い方によっては非常に便利です。しかし、みだりに使用するのも考え物です。特にチェック例外を catch 節で RuntimeException に付け替え、その際に原因例外を設定しない場合、スタックトレースでは RuntimeException に付け替えたところまでしか追跡することができず、エラーの原因を示す例外を特定できなくなってしまいます。そもそも RuntimeException は非チェック例外すべてのスーパークラスであり、何が原因で例外スローに至ったのかクラス名だけではわからない欠点があります。非チェック例外をスローする場合は RuntimeException のスローはできるだけ減らし、原因を示すような名前を持つ非チェック例外 (RuntimeException のサブクラス) を必要に応じて作成してスローするのが良いでしょう。
+
+### Throwable のキャッチおよびスロー
+try-catch 文で Throwable をキャッチするようなコーディングは避けてください。Exception、RuntimeException だけでなく Error までキャッチしてしまう恐れがあるためです。Error は Java VM のエラーなど深刻な状態を表すため、特別な理由がなければキャッチすべきではない例外オブジェクトです。仮に Error をキャッチしてもアプリケーションで対処できることはありません。
+
+ファクトリメソッド
+```java
+public final class LocalDate {
+
+    private LocalDate(int year, int month, int dayOfMonth) {
+        ...
+    }
+
+    public static LocalDate of(int year, int month, int dayOfMonth) {
+        // 実際の LocalDate では複数のメソッドで処理しているが、ここでは省略する
+        ...
+        return new LocalDate(year, month, dayOfMonth);
+    }
+    ...
+}
+```
+インスタンスの生成において、コンストラクタによる初期化に加えて追加の処理を必要とする場合などは、ファクトリ・メソッドと呼ばれるメソッドが用意される場合があります。コンストラクタとファクトリ・メソッドを同一クラス上に定義する場合には、ファクトリ・メソッドを public な static メソッドとして定義し、コンストラクタを private (継承を許可する場合は protected) スコープで定義します。ファクトリ・メソッドにはインスタンス生成に関わる処理を隠ぺいするだけでなく、コンストラクタの表現力不足 (コンストラクタでは同じ引数リストを持つものを複数定義できないが、メソッドであれば名前を変えることで同じ引数リストを持つものを定義可能、等) を補う意味もあります。以下に Java 標準 API の LocalDate クラスの実装を一部簡略化して示します。
+
+LocalDate クラスは日付を表しますが、日付の表現には様々な方法がある (年-月-日、年-月の名前-日、年-年始からの通算日、等) だけでなく、イミュータブルなクラスとして設計されているため、日付の加算・減算等でもインスタンスの生成が必要となります。これらをすべてコンストラクタで実現しようとすると無理が生じるため、コンストラクタは private スコープとしてクラスの内部に隠ぺいし、代わりにファクトリ・メソッドを豊富に用意することで対応してます。
+
+なお、Byte、Integer、Long、Float、Double の各クラスは public なコンストラクタと valueOf ファクトリ・メソッドの両方を持つ特殊な例です。これらのクラスの valueOf ファクトリ・メソッドは値の全部または一部をキャッシュするため、コンストラクタでインスタンスを生成する場合と比較して効率が良いとされます。
+
+シングルトン
+```java
+public final class Singleton {
+    // private な static フィールドに唯一のインスタンスを設定する
+    private static final Singleton instance = new Singleton();
+
+    private Singleton() {
+        ...
+    }
+
+    public static Singleton getInstance() {
+        // instance の値は常に同じであるため、このメソッドの戻り値は常に同じ値となる
+        return instance;
+    }
+    ...
+}
+```
