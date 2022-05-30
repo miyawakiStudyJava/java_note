@@ -2,6 +2,24 @@
 
 忘れやすいポイント
 
+ファイル構成
+```java
+package package_name ;
+
+[ import package_name . { ClassName | * } ; [ import ... ; ] ... ]
+
+// ClassName : クラス名
+[ public ] [ final ] class ClassName {
+    // コンストラクタ定義
+    [ constructor [ constructor ... ] ]
+
+    // フィールド定義
+    [ field [ field ... ] ]
+
+    // メソッド定義
+    [ method [ method ... ] ]
+}
+```
 
 文字列操作
 ```java
