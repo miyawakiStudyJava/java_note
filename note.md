@@ -1,5 +1,8 @@
 #java_note
 
+参考
+https://zenn.dev/khasunuma/books/javase8-study/viewer/chapter03
+
 忘れやすいポイント
 
 ファイル構成
@@ -20,6 +23,34 @@ package package_name ;
     [ method [ method ... ] ]
 }
 ```
+
+メソッド呼び出し
+```java
+// (1) メソッド呼び出し式
+// 仮引数なしのため、実引数も設定しない
+instance.run()
+// 仮引数 String str に対して実引数 "Hello" を設定
+sb.append("Hello")
+
+// (2) メソッド呼び出し式 (static メソッド)
+// 仮引数 int year, int month, int dayOfMonth に対して実引数 2016, 9, 9 を設定
+LocalDate.of(2016, 9, 9)
+
+// (3) メソッド呼び出し式 (メソッドチェーン)
+// 上記 (2) の結果 (LocalDate クラスのインスタンス) に対してさらにメソッド呼び出し式 (1) を適用
+LocalDate.of(2016, 9, 9).withDayOfMonth(10)
+```
+
+文字リテラル
+Esc	意味	Unicode
+\b	backspace (BS)	\u0008
+\t	horizontal tab (HT)	\u0009
+\n	linefeed (LF)	\u000a
+\f	form feed (FF)	\u000c
+\r	carriage return (CR)	\u000d
+\"	double quote (")	\u0022
+\'	single quote (')	\u0027
+\\	backslash ()	\u005c
 
 文字列操作
 ```java
