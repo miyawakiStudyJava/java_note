@@ -42,15 +42,16 @@ LocalDate.of(2016, 9, 9).withDayOfMonth(10)
 ```
 
 文字リテラル
-Esc	意味	Unicode
-\b	backspace (BS)	\u0008
-\t	horizontal tab (HT)	\u0009
-\n	linefeed (LF)	\u000a
-\f	form feed (FF)	\u000c
-\r	carriage return (CR)	\u000d
-\"	double quote (")	\u0022
-\'	single quote (')	\u0027
-\\	backslash ()	\u005c
+|Esc	|意味	|Unicode|
+|---|---|---|
+|\b	|backspace (BS)	|\u0008|
+|\t	|horizontal tab (HT)	|\u0009|
+|\n	|linefeed (LF)	|\u000a|
+|\f	|form feed (FF)	|\u000c|
+|\r	|carriage return (CR)	|\u000d|
+|\"	|double quote (")	|\u0022|
+|\'	|single quote (')	|\u0027|
+|\\	|backslash ()	|\u005c|
 
 文字列操作
 ```java
