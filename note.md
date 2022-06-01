@@ -399,6 +399,7 @@ Collections クラス
 
 
 |操作	|Reader	|Writer|
+|---|---|---|
 |ファイルのオープン	|new FileReader()	|new FileWriter()|
 |1 文字の読み取り/書き込み	|read()	|write(int)|
 |配列の要素数だけ読み取り/書き込み	|read(char[], int, int)	|write(char[], int, int)|
@@ -409,3 +410,226 @@ Collections クラス
 
 入出力ストリームのバッファリング
  >一般に、入出力ストリームは read/write のメソッドが呼ばれる度に入出力を行います。そのため、入出力対象がメモリ等の高速なものでない限り、大きな負荷が掛かりやすくなります。そこで、こうした処理の効率化のためにバッファリングを行う入出力ストリームが用意されています。ファイル入出力ではバッファリングを行った方が良いでしょう。
+
+
+FileSystem クラスと Path インタフェース
+
+```java
+FileSystem fileSystem = FileSystems.getDefault();
+
+// デリミタを含む fileSystem.getPath("C:\\eclipse\\eclipse.ini") でも OK
+Path path = fileSystem.getPath("C", "eclipse", "eclipse.ini");
+```
+
+|メソッド名	|説明|
+|getFileName	|ファイルまたはディレクトリ名そのもの (ディレクトリ構造を含まない) を取得する|
+|getParent	|親ディレクトリのパスを取得する (親を持たない場合は null)|
+|resolve	|指定されたパスをこのパスに対して解決する (例: パスの子要素を取得する)|
+|resolveSibling	|指定されたパスをこのパスの親パスに対して解決する (例: ファイル名を変更する)|
+|toAbsolutePath	|絶対パスを取得する|
+|toString	|文字列表現を取得する (書式は OS に依存する)|
+
+
+### Files クラス
+
+Files クラスが提供するメソッドのうちファイル・システム操作に関するものには、以下のようなものが用意されています。具体的なメソッド名については API ドキュメントを参照してください。
+
+- ファイルのコピー (※NIO.2 以前、実はファイルのコピー機能も提供されていなかった)
+- ファイルの移動 (リネーム)
+- ディレクトリの作成
+- 空ファイルの作成
+- ハードリンク/シンボリックリンクの作成
+- 一時ディレクトリの作成
+- 空の一時ファイルの作成
+- ファイル (ディレクトリ) の削除
+- ファイル (ディレクトリ) の存在チェック
+- ファイル (ディレクトリ) のサイズ・属性・更新日時・所有者等の取得
+- ディレクトリ・ツリーのスキャン
+
+|メソッド名	|説明|
+|newBufferedReader	|ファイルを読み取り用に開き BufferedReader を返す|
+|newBufferedWriter	|ファイルを書き込み用に開き BufferedWriter を返す|
+|newInputStream	|ファイルを読み取り用に開き InputStream を返す|
+|newOutputStream	|ファイルを書き込み用に開き OutputStream を返す|
+|readAllBytes	|ファイルからすべてのバイトを読み取り byte[] で返す|
+|readAllLines	|ファイルからすべての行を読み取り List<String> で返す|
+|lines	|ファイルからすべての行を読み取り Stream<String> で返す (Java SE 8 以降)|
+|write	|すべてのバイトまたは行をファイルに書き込む (一部の書式は Java SE 8 以降)|
+
+※readAllBytes()、readAllLines()、lines() および write() は、完了後にファイルがクローズされる。
+
+
+### try-catch 文を用いたファイルの読み込み
+テキスト・ファイルを 1 行単位で読み込み、何らかの処理を行うメソッドの例を以下に示します。これが Java におけるファイル読み込みの基本形となりますが、現在では次節に示すように try-with-resources 文を使用したほうがよいでしょう。
+
+```java
+public void readFile(Path path) throws IOException {
+    BufferedReader reader = Files.newBufferedReader(path, Charset.forName("UTF-8"));
+    try {
+        String line = reader.readLine();
+        while (line != null) {
+            // ここで何か処理を行う
+            ...
+            line = reader.readLine();
+        }
+    } catch (IOException e) {
+        ...
+        // IOException の再スロー、その他の処理がなければ catch 節ごと省略可能
+        throw e;
+    } finally {
+        reader.close();
+    }
+}
+```
+
+### try-with-resources 文を用いたファイルの読み込み
+```java
+public void readFile(Path path) throws IOException {
+    // リソース BufferedReader reader = Files.newBufferedReader(path) をオープンする
+    // ここでオープンしたリソースは try-catch を抜ける際に自動的にクローズされる 
+    try (BufferedReader reader = Files.newBufferdReader(path, Charset.forName("UTF-8"))) {
+        String line = reader.readLine();
+        while (line != null) {
+            // ここで何か処理を行う
+            ...
+            line = reader.readLine();
+        }
+    } catch (IOException e) {
+        ...
+        // IOException の再スロー、その他の処理がなければ catch 節ごと省略可能
+        throw e;
+    } // close() が不要となるので、finally 節も省略できる
+}
+```
+
+```java
+public void readFile(Path path) throws IOException {
+    try {
+        for (String line : Files.readAllLines(path, Charset.forName("UTF-8"))) {
+            // ここで何か処理を行う
+            ...
+        }
+    } catch (IOException e) {
+        ...
+        // IOException の再スロー、その他の処理がなければ catch 節ごと省略可能
+        throw e;
+    }
+}
+```
+
+```java
+public void writeFile(Path path, List<String> lines) throws IOException {
+    try {
+        Files.write(path, lines, Charset.forName("UTF-8"));
+    } catch (IOException e) {
+        ...
+        // IOException の再スロー、その他の処理がなければ catch 節ごと省略可能
+        throw e;
+    }
+}
+```
+
+関数インターフェース
+|関数インタフェース	|メソッド	|主な用途など|
+|---|---|---|
+|Runnable	|void run()	|スレッドの処理 (戻り値は返さない)|
+|Callable<V>	|V call()	|スレッドの処理 (戻り値を返す)|
+|Comparator<T>	|int compare(T o1, T o2)	|コレクション (比較結果を数値で返す)|
+|Supplier<T>	|T get()	|Stream API (戻り値を返し、引数は受け取らない)|
+|Consumer<T>	|void accept(T t)	|Stream API (引数を受け取り、戻り値は返さない)|
+|Function<T, R>	|R accept(T t)	|Stream API (引数を受け取り、戻り値を返す)|
+|Predicate<T>	|boolean test(T t)	|Stream API (引数を受け取り、条件により true or false を返す)|
+
+メソッド参照
+|参照する対象	|ラムダ式	|メソッド参照|
+|インスタンスのメソッド	|e -> list.add(e)	|list::add|
+|クラスの static メソッド	|s -> System.out.println(s)	|System.out::println|
+|クラスのコンストラクタ	|() -> new ArrayList()	|ArrayList::new|
+
+Streamの生成
+|ソース	|クラス	|生成するメソッド	|生成されるストリーム|
+|---|---|---|---|
+|配列	|Arrays	<T>stream(T[])	|Stream<T>|
+||Arrays	|stream(int[])	|IntStream|
+|コレクション	|Collection<T>	|stream()	|Stream<T>|
+|任意の要素	|Stream	<T>of(T...)	Stream<T>|
+||IntStream	|of(int...)	|IntStream|
+|n から m	|IntStream	|rangeClosed(int n, int m)	|IntStream|
+|n から m - 1	|IntStream	|range(int n, int m)	|IntStream|
+|文字列	|String	|chars()	|IntStream|
+|ランダムな整数	|Random	|ints()	|IntStream|
+|ファイルの各行	|BufferedReader	|lines()	|Stream<String>|
+||Files	|lines(Path)	|Stream<String>|
+|ディレクトリ内の要素	|Files	list(Path)	|Stream<Path>|
+||Files	|walk(Path, int, FileVisitOption...)	|Stream<Path>|
+
+中間操作
+|メソッド名	|引数	|概要|
+|filter()	|T -> boolean	|フィルタリングする|
+|map()	|T -> U	|Stream<U> へ変換する|
+|flatMap()	|T -> Stream<U>	|Stream<U> へ変換する|
+|distinct()	|なし	|同一の要素を除外する|
+|sorted()	|なし	|自然順序で並び替える|
+|sorted()	|(T, T) -> int	|並び替える|
+|peek()	|T -> void	|デバッグ用途の forEach()|
+|limit()	|long	|引数の件数に要素数を制限する|
+|skip()	|long	|引数の件数文を読み飛ばす|
+
+終端操作
+|メソッド名	|引数	|戻り値	|概要|
+|forEach()	|T -> void	|void	|要素ごとに何らかの処理を行う|
+|findAny()	|なし	|Optional<T>	|任意の要素を 1 つだけ取得する|
+|findFirst()	|なし	|Optional<T>	|最初の要素を取得する|
+|anyMatch()	|T -> boolean	|boolean	|いずれかの要素が条件に沿うか|
+|allMatch()	|T -> boolean	|boolean	|すべての要素が条件に沿うか|
+|noneMatch()	|T -> boolean	|boolean	|すべての要素が条件に沿わないか|
+|reduce()	|(T, T) -> T	|Optional<T>	|各要素から 1 つの要素に畳み込む|
+|collect()	|Collector<? super T, A, R>	|R	|各要素から 1 つのオブジェクトに集計する|
+|toArray()	|int -> A[]	|A[]	|すべての要素を含む配列を生成する|
+|count()	|なし	|int	|要素数を取得する|
+
+>findFirst および findAny は該当する要素が見つからない場合があるため、戻り値が Optional になります。Optional については後ほど取り上げます。また、reduce は汎用の終端操作であり、他では実現できない特殊な操作を実装する際に使用します。
+
+```java
+Stream<String> stream = ... ;
+
+// コレクション (List) への変換
+List<String> list = stream.collect(Collectors.toList());
+
+// 配列への変換
+// String[]::new は i -> new String[i] と同じ
+String[] array = stream.toArray(String[]::new);
+```
+
+Optional
+|メソッド名	|引数	|説明|
+|of	|T	|値をラップして Optional のインスタンスを生成する。値が null の場合は NullPointerException をスローする。|
+|ofNullable	|T	|値をラップして Optional のインスタンスを生成する。値が null の場合は保持しない。|
+|empty	|なし	|値を保持しない Optional のインスタンスを生成する。Optional.ofNullable(null) と同じ。|
+
+```java
+// 値 (null の可能性がある)
+String original = ... ;
+
+// original をラップして Optional のインスタンスを生成する → value
+Optional<String> value = Optional.ofNullable(original);
+
+// get : 
+// 値を保持する場合は値を s1 に代入し、保持しない場合は NoSuchElementException をスローする
+String s1 = value.get();
+
+// orElse : 
+// 値を保持する場合は値を s2 に代入し、保持しない場合は引数の値を s2 に代入する
+String s2 = value.orElse("default value");
+
+// orElseGet : 
+// 値を保持する場合は値に s3 を代入し、保持しない場合は引数 (ラムダ式) で生成される値を s3 に代入する
+String s3 = value.orElseGet(() -> "default value");
+
+// orElseThrow : 
+// 値を保持する場合は値を s4 に代入し、保持しない場合は引数 (ラムダ式) で生成される例外をスローする
+String s4 = value.orElseThrow(() -> new IllegalArgumentException());
+```
+
+Date and Time API
+https://zenn.dev/khasunuma/books/javase8-study/viewer/chapter13
