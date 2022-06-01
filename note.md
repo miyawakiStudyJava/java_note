@@ -271,3 +271,115 @@ public final class Singleton {
     ...
 }
 ```
+
+Collection
+|メソッド名	|説明|
+|---|---|
+|boolean add(E e)	|コレクションに要素を追加する|
+|boolean addAll(Collection <? extends E> c)	|コレクションにすべての要素を追加する|
+|void clear()	|コレクションの全要素を削除する|
+|boolean contains(Object o)	|要素がコレクションに含まれている場合は true、そうでなければ false を返す|
+|boolean isEmpty()	|コレクションの要素数が 0 の場合は true、そうでなければ false を返す|
+|Iterator<E> iterator()	|イテレータを返す (後述)|
+|boolean remove(Object o)	|コレクションの要素を削除する|
+|int size()	|コレクションの要素数を返す|
+|<T> T[] toArray(T[] a)	|コレクションを T 型/クラスの配列に変換する (後述)|
+
+Iterator
+|メソッド	|説明|
+|hasNext()	|次の要素がある場合は true、そうでなければ false (要素数が 0 の場合は常に false)|
+|next()	|次の要素を取得する|
+|remove()	|現在の要素 (= 前回 next() で取得した要素) を削除する|
+
+List
+|メソッド名	|説明|
+|---|---|
+|boolean add(int index, E element)	|index 番目に要素を挿入する|
+|E get(int index)	|index 番目の要素を取得する|
+|int indexOf(Object o)	|要素が最初に見つかった index を返す|
+|int lastIndexOf(Object o)	|要素が最後に見つかった index を返す|
+|int remove(int index)	|index 番目の要素を削除する|
+|E set(int index, E element)	|index 番目の要素を置き換える|
+
+Queue,Deque
+|メソッド名	|説明|
+|---|---|
+|boolean add(E e)	|要素をキューへ挿入する|
+|boolean offer(E e)	|要素をキューへ挿入する (失敗した場合は非チェック例外 NoSuchElementException をスロー)|
+|E poll()	|要素を取得してキューから取り除く (要素がなければ null を返す)|
+|E element()	|要素を取得してキューから取り除く (要素がなければ非チェック例外 NoSuchElementException をスロー)|
+|E peek()	|要素を取得するがキューには残す (要素がなければ null を返す)|
+|E remove()	|要素を取得するがキューには残す (要素がなければ非チェック例外 NoSuchElementException をスロー)|
+
+
+Map
+|メソッド名	|説明|
+|---|---|
+|void clear()	|すべてのエントリ (キーと値のペア) を削除する|
+|boolean containsKey(Object key)	|キーが含まれている場合は true、そうでない場合は false を返す|
+|Set<K> keySet()	|すべてのキーを返す (Set インタフェース)|
+|V get(Object key)	|キーに対応する値を取得する (存在しない場合は null を返す)|
+|V getOrDefault(Object key, V defaultValue)	|キーに対応する値を取得する (存在しない場合は defaultValue を返す)|
+|V put(K key, V value)	|キーに対応する値を設定する (既に存在する場合は置き換える)|
+|V putIfAbsent(K key, V value)	|キーに対応する値を設定する (既に存在する場合は置き換えない)|
+|V remove(Object key)	|キーと対応する値を削除する (存在しない場合は何もしない)|
+|int size()	|エントリ (キーと値のペア) の数を返す|
+|Collection<V> values()	|すべての値を返す (Collection インタフェース)|
+
+
+Arrays クラス
+|メソッド名	|説明|
+|---|---|
+|asList	|指定された配列に連動する固定サイズのリストを返す|
+|binarySearch	|配列から指定された値を検索する (二分検索)|
+|copyOf	|指定された配列をコピーする (長さは必要に応じて切り詰めるかパディング)|
+|copyOfRange	|指定された配列の指定された範囲を新しい配列にコピーする|
+|equals	|2 つの配列が互いに同等である場合に true を返す|
+|hashCode	|指定された配列の内容に基づくハッシュ・コードを返す|
+|toString	|指定された配列の文字列表現を返す|
+|deepEquals	|2つの配列が互いに等価な場合に true を返す (深層内容)|
+|deepHashCode	|指定された配列のハッシュ・コードを返す (深層内容)|
+|deepToString	|指定された配列の文字列表現を返す (深層内容)|
+|fill	|配列の各要素を設定する (同一の値を使用する)|
+|sort	|指定された配列をソートする|
+|setAll	|配列のすべての要素を設定する (異なる値も設定可)|
+|parallelSort	|指定された配列をソートする (マージソード・並列処理)|
+|parallelSetAll	|配列のすべての要素を設定する (異なる値も設定可・並列処理)|
+
+
+Collections クラス
+|メソッド名	|対象	|説明|
+|---|---|---|
+|addAll	|Collection	|指定されたすべての要素を Collection に追加する (高速)|
+|binarySearch	|List	|リストからインスタンスを検索する (二分探索)|
+|copy	|List	|あるリストから別のリストにすべての要素をコピーする|
+|disjoint	|Collection	|2 つの Collection に共通の要素がない場合に true を返す|
+|emptyIterator	|N/A	|空のイテレータを返す|
+|emptyList	|N/A	|空の List を返す|
+|emptyMap	|N/A	|空の Map を返す|
+|emptySet	|N/A	|空の Set を返す|
+|fill	|List	|すべての要素を指定した要素で置き換える|
+|frequency	|Collection	|指定されたオブジェクトと等価な要素の数を返す|
+|indexOfSubList	|List	|サブ・リストが最初に出現した位置の開始位置を返す|
+|lastIndexOfSubList	|List	|サブ・リストが最後に出現した位置の開始位置を返す|
+|max	|Collection	|最大の要素を返す|
+|min	|Collection	|最小の要素を返す|
+|nCopies	|N/A	|指定されたインスタンスの n 個のコピーで構成される不変の List を返す|
+|replaceAll	|List	|指定された値をすべて置き換える|
+|reverse	|List	|リストの要素の順序を逆にする|
+|rotate	|List	|リストの要素を指定された距離により回転する|
+|shuffle	|List	|リストの順序をシャッフルする|
+|singleton	|N/A	|指定されたインスタンスだけを格納する不変の Set を返す|
+|singletonList	|N/A	|指定されたインスタンスだけを格納する不変の List を返す|
+|singletonMap	|N/A	|指定されたインスタンスだけを格納する不変の Map を返す|
+|sort	|N/A	|リストを昇順ソートする|
+|swap	|List	|リストの指定された位置にある要素を入れ替える|
+|synchronizedCollection	|Collection	|同期化 (10 章) された Collection を返す|
+|synchronizedList	|List	|同期化 (10 章) された List を返す|
+|synchronizedMap	|Map	|同期化 (10 章) された Map を返す|
+|synchronizedSet	|Set	|同期化 (10 章) された Set を返す|
+|unmodifiableCollection	|Collection	|不変な Collection を返す|
+|unmodifiableList	|List	|不変な List を返す|
+|unmodifiableMap	|Map	|不変な Map を返す|
+|unmodifiableSet	|Set	|不変な Set を返す|
+
