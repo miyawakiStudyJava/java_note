@@ -383,3 +383,29 @@ Collections クラス
 |unmodifiableMap	|Map	|不変な Map を返す|
 |unmodifiableSet	|Set	|不変な Set を返す|
 
+ファイル操作の基本
+
+|操作	|InputStream	|OutputStream|
+|---|---|---|
+|ファイルのオープン	|new FileInputStream()	|new FileOutputStream()|
+|1 バイトの読み取り/書き込み	|read()	|write(int)|
+|配列の要素数だけ読み取り/書き込み	|read(byte[], int, int)	|write(byte[], int, int)|
+|指定した長さだけ読み取り/書き込み	|read(byte[], int, int)	|write(byte[], int, int)|
+|ファイルのフラッシュ	|N/A	|flush()|
+|ファイルのクローズ	|close()	|close()|
+
+- コンストラクタおよびメソッドは IOException (またはそのサブクラス) をスローする可能性があります。したがって、例外処理が必須となります。
+^ 処理の最後に必ずファイルのクローズが必要です。原則として try-catch 文の finally 句でクローズします。
+
+
+|操作	|Reader	|Writer|
+|ファイルのオープン	|new FileReader()	|new FileWriter()|
+|1 文字の読み取り/書き込み	|read()	|write(int)|
+|配列の要素数だけ読み取り/書き込み	|read(char[], int, int)	|write(char[], int, int)|
+|指定した長さだけ読み取り/書き込み	|read(char[], int, int)	|write(char[], int, int)|
+|文字列の読み取り/書き込み	|N/A	|write(String)|
+|ファイルのフラッシュ	|N/A	|flush()|
+|ファイルのクローズ	|close( )	|close()|
+
+入出力ストリームのバッファリング
+ >一般に、入出力ストリームは read/write のメソッドが呼ばれる度に入出力を行います。そのため、入出力対象がメモリ等の高速なものでない限り、大きな負荷が掛かりやすくなります。そこで、こうした処理の効率化のためにバッファリングを行う入出力ストリームが用意されています。ファイル入出力ではバッファリングを行った方が良いでしょう。
