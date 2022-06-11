@@ -1,3 +1,23 @@
+boolean用 is/has/can/should
+
+begin/end
+maximum/minimum
+
+同じコードの繰り返しを一つにする（DRYにする)
+説明変数を利用する
+```java
+//bad
+if(line.split(,)[0].strip() =="kokugo"){}
+
+//kamoku
+kamoku = line.split(",")[0].strip();
+if(kamoku.equals("kokugo")){};
+
+```
+
+
+
+
 a
 |単語	|読み	|意味	|使い方|
 |---|---|---|---|
