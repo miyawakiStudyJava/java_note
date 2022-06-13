@@ -66,42 +66,42 @@
   
   059.数値を任意の形式にフォーマットしたい。
   ```Java
-  /////////////////////////////////////////////////////////////////////////////
-		// NumberFormatで整形する
-		/////////////////////////////////////////////////////////////////////////////
-		{
-			// 整数値をフォーマット
-			String result1 = NumberFormat.getIntegerInstance().format(1000000); // => "1,000,000"
-			System.out.println(result1);
-			// 通貨形式にフォーマット
-			String result2 = NumberFormat.getCurrencyInstance().format(1000000); // => " ¥1,000,000"
-			System.out.println(result2);
-			// パーセント形式にフォーマット
-			String result3 = NumberFormat.getPercentInstance().format(0.8); // => "80%"
-			System.out.println(result3);
-		}
-		/////////////////////////////////////////////////////////////////////////////
-		// ロケールを指定して整形する
-		/////////////////////////////////////////////////////////////////////////////
-		{
-			// USロケールを指定
-			Locale locale = Locale.US;
-			String result = NumberFormat.getCurrencyInstance(locale).format(1000000); // => "$1,000,000"
-			System.out.println(result);
-		}
-		/////////////////////////////////////////////////////////////////////////////
-		// DecimalFormatで整形する
-		/////////////////////////////////////////////////////////////////////////////
-		{
-			// 6桁のゼロで埋めるフォーマット
-			DecimalFormat zeroDF = new DecimalFormat("000,000");
-			String result1 = zeroDF.format(1234); // => "001,234"
-			System.out.println(result1);
-			// 負の数に▲をつけてフォーマット
-			DecimalFormat negativeDF = new DecimalFormat("###,###; ▲###,###");
-			String result2 = negativeDF.format(-1234); // => "▲1,234"
-			System.out.println(result2);
-		}
+  	/////////////////////////////////////////////////////////////////////////////
+	// NumberFormatで整形する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// 整数値をフォーマット
+		String result1 = NumberFormat.getIntegerInstance().format(1000000); // => "1,000,000"
+		System.out.println(result1);
+		// 通貨形式にフォーマット
+		String result2 = NumberFormat.getCurrencyInstance().format(1000000); // => " ¥1,000,000"
+		System.out.println(result2);
+		// パーセント形式にフォーマット
+		String result3 = NumberFormat.getPercentInstance().format(0.8); // => "80%"
+		System.out.println(result3);
+	}
+	/////////////////////////////////////////////////////////////////////////////
+	// ロケールを指定して整形する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// USロケールを指定
+		Locale locale = Locale.US;
+		String result = NumberFormat.getCurrencyInstance(locale).format(1000000); // => "$1,000,000"
+		System.out.println(result);
+	}
+	/////////////////////////////////////////////////////////////////////////////
+	// DecimalFormatで整形する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// 6桁のゼロで埋めるフォーマット
+		DecimalFormat zeroDF = new DecimalFormat("000,000");
+		String result1 = zeroDF.format(1234); // => "001,234"
+		System.out.println(result1);
+		// 負の数に▲をつけてフォーマット
+		DecimalFormat negativeDF = new DecimalFormat("###,###; ▲###,###");
+		String result2 = negativeDF.format(-1234); // => "▲1,234"
+		System.out.println(result2);
+	}
   ```
 
   2.8　正規表現  
@@ -518,9 +518,159 @@
 		}
 	}
 	```
-　6.3　パス  
+	
+	182.パスを絶対パスに変換したい
+	```java
+	// カレントディレクトリからの相対パスを指定
+	Path path1 = Paths.get("temp", "test.txt"); // => "temp¥test.txt"
+	System.out.println(path1);
+	System.out.println(path1.isAbsolute());     // => false
+
+	// 絶対パスに変換
+	Path path2 = path1.toAbsolutePath();        // => "C:¥Users¥takezoe¥temp¥test.txt"
+	System.out.println(path2);
+	System.out.println(path2.isAbsolute());     // => true
+	```
+　6.3　パス 
+ 	196.パスが示すファイルを読み込みたい。
+	```Java
+	Path path = Paths.get("src", "jp", "co", "shoeisha", "javarecipe", "chapter06", "recipe196", "test.txt");
+
+	byte[] bytes = Files.readAllBytes(path);
+	System.out.println(new String(bytes, StandardCharsets.UTF_8));
+
+	// ファイルの内容を1行ごとのListとして読み込み
+	List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+	// 読み込んだファイルの内容をコンソールに出力
+	for (String line : lines) {
+		System.out.println(line);
+	}
+	```
+	
+	197.パスが示すファイルを1行ずつ読み込みたい（遅延読み込み）
+	```java
+	Path path = Paths.get("src", "jp", "co", "shoeisha", "javarecipe", "chapter06", "recipe197", "test.txt");
+		
+	// ファイルの内容を1行ごとの文字列を返すStreamとして取得
+	try (Stream<String> lines = Files.lines(path, StandardCharsets.UTF_8)) {
+		// 読み込んだファイルの内容をコンソールに出力
+		lines.forEach(s -> {
+			System.out.println(s);
+		});
+	}
+	```
+	
+	198.パスが示すファイルに書き出したい。
+	```java
+	// バイト配列をファイルに書き出す
+	Path path1 = Paths.get("src", "jp", "co", "shoeisha", "javarecipe", "chapter06", "recipe198", "test1.txt");
+	byte [ ] bytes = "テスト".getBytes(StandardCharsets.UTF_8);
+	Files.write(path1, bytes);
+
+	// 文字列をファイルに書き出す
+	Path path2 = Paths.get("src", "jp", "co", "shoeisha", "javarecipe", "chapter06", "recipe198", "test2.txt");
+	List<String> lines = Arrays.asList("1行目", "2行目", "3行目");
+	Files.write(path2, lines, StandardCharsets.UTF_8);
+
+	// ファイルに追記する
+	Files.write(path2, Arrays.asList("4行目"), StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+	```
+	
 　6.4　入出力  
-  
+  	203.コンソールからの入力を受け取りたい。
+	```java
+	BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		
+	// ユーザに入力を促すためのメッセージ
+	System.out.print("お名前をどうぞ：");
+
+	// コンソールからの入力を取得する
+	String name = reader.readLine();
+
+	// 入力された内容を表示
+	System.out.println("こんにちは、" + name + "さん！");
+	```
+	
+	206.ファイルの内容を文字列で読み込みたい。
+	```java
+	// ファイルの内容を文字列で読み込む
+	try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(
+			"src/jp/co/shoeisha/javarecipe/chapter06/recipe206/test.txt"), StandardCharsets.UTF_8))) {
+		String line = null;
+		// ファイルの内容を1行ずつ読み込んでコンソールに出力する
+		while ((line = reader.readLine()) != null) {
+			System.out.println(line);
+		}
+	}
+
+	// ファイルから読み込んだバイト配列を文字列に変換する
+	try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(
+			"src/jp/co/shoeisha/javarecipe/chapter06/recipe206/test.txt"));
+	     ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+		// InputStreamの内容をByteArrayOutputStreamに書き出す
+		byte[] buf = new byte[1024 * 8];
+		int length = 0;
+		while ((length = in.read(buf)) != -1) {
+			out.write(buf, 0, length);
+		}
+		byte[] bytes = out.toByteArray();
+		// 読み込んだバイト配列を文字列に変換する
+		String str = new String(bytes, StandardCharsets.UTF_8);
+		System.out.println(str);
+	}
+	```
+	
+	207.文字列をファイルに書き出したい。
+	```java
+	try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+			"src/jp/co/shoeisha/javarecipe/chapter06/recipe207/test.txt"), StandardCharsets.UTF_8))) {
+		// ファイルに文字列を出力
+		writer.write("ファイルに文字列を出力");
+		// ファイルに改行を出力
+		writer.newLine();
+	}
+	```
+	
+	210.プロパティファイルの内容を読み込みたい。
+	```java
+	/////////////////////////////////////////////////////////////////////////////
+	// プロパティファイルの読み込み
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// プロパティファイルを読み込むための入力ストリームを作成
+		try(Reader reader = new InputStreamReader(new FileInputStream(
+				"src/jp/co/shoeisha/javarecipe/chapter06/recipe210/sample.properties"), StandardCharsets.UTF_8)){
+			// 入力ストリームからロード
+			Properties properties = new Properties ( );
+			properties.load(reader);
+
+			System.out.println("JDBCドライバ=" + properties.getProperty("jdbc.driver"));
+			System.out.println("URL=" + properties.getProperty("jdbc.url"));
+			System.out.println("ユーザ=" + properties.getProperty("jdbc.user"));
+			System.out.println("パスワード=" + properties.getProperty("jdbc.password"));
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// プロパティファイルを保存する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// Propertiesオブジェクトにプロパティを設定
+		Properties properties = new Properties();
+		properties.setProperty("jdbc.driver", "org.h2.Driver");
+		properties.setProperty("jdbc.url", "jdbc:h2:mem:mydb;DB_CLOSE_DELAY=-1");
+		properties.setProperty("jdbc.user", "ユーザ");
+		properties.setProperty("jdbc.password", "password");
+
+		// プロパティファイルに保存
+		try(Writer writer = new OutputStreamWriter(new FileOutputStream(
+				"src/jp/co/shoeisha/javarecipe/chapter06/recipe210/sample2.properties"), StandardCharsets.UTF_8)){
+			properties.store(
+			writer,                // ファイルに書き込みを行なうためのWriter
+			"JDBC Configuration"); // コメント（プロパティファイルの先頭に出力される）
+		}
+	}
+	```
 第07章　並行プログラミング  
 　7.1　導入  
 　7.2　スレッド  
