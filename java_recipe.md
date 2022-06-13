@@ -10,8 +10,8 @@
     ```java
     // java.lang.Mathのすべてのstaticメンバをインポート
     import static java.lang.Math.*;
-    
     ```
+    
 　2.2　変数とデータ型  
     015.ビット演算を行いたい  
     & a&b
