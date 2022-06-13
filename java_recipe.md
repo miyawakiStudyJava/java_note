@@ -348,7 +348,176 @@
 	```
 第06章　ファイル・入出力  
 　6.1　導入  
+ 	167.Javaでのファイル操作について知りたい
+	```Java
+	/////////////////////////////////////////////////////////////////////////////
+	// Fileオブジェクトを作成する
+	/////////////////////////////////////////////////////////////////////////////
+	// 絶対パスを指定
+	File file1 = new File("C:¥¥Users¥¥takezoe¥¥test.txt");
+
+	// カレントディレクトリからの相対パスを指定
+	File file2 = new File("test.txt");
+	File file3 = new File("..¥¥hoge¥¥test.txt");
+
+	// 親ディレクトリと、親ディレクトリからの相対パスを指定
+	File parent = new File("C:¥¥Users¥¥takezoe");
+	File file4 = new File(parent, "hoge¥¥test.txt");
+
+	/////////////////////////////////////////////////////////////////////////////
+	// Fileを使用したファイル操作
+	/////////////////////////////////////////////////////////////////////////////
+	// ディレクトリを作成
+	File dir = new File("dir");
+	dir.mkdir();
+
+	// ファイルを作成
+	File file = new File(dir, "test.txt");
+	file.createNewFile();
+
+	// ファイルを削除
+	file.delete();
+	// ディレクトリを削除
+	dir.delete();
+	```
 　6.2　ファイル  
+ 	176.ファイルの絶対パスを取得したい
+	```java
+	/////////////////////////////////////////////////////////////////////////////
+	// ファイルの絶対パスを取得する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		File file = new File("src");
+		System.out.println(file);
+
+		// ファイルの絶対パスを取得する
+		String absolutePath = file.getAbsolutePath();
+		System.out.println(absolutePath);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// ファイルの絶対パスを取得する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		File file = new File("src");
+		System.out.println(file);
+
+		// 絶対パスを持つFileオブジェクトに変換する
+		File absoluteFile = file.getAbsoluteFile();
+		System.out.println(absoluteFile);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// パスを正規化する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		File file = new File("C:\\Users\\takezoe\\..\\test.txt");
+
+		// 正規化したパスを取得
+		String path = file.getCanonicalPath(); // => "C:¥Users¥test.txt"
+		System.out.println(path);
+
+		// 正規化したパスを示すFileオブジェクトを取得
+		File normalized = file.getCanonicalFile();
+		System.out.println(normalized);
+	}
+	```
+	
+	177.親ディレクトリを取得したい
+	```Java
+	/////////////////////////////////////////////////////////////////////////////
+	// 親ディレクトリを取得する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		File file = new File("C:\\Users\\takezoe\\test.txt");
+
+		// 親ディレクトリ名を取得
+		String parentDirName = file.getParent(); // => "C:¥Users¥takezoe"
+		System.out.println(parentDirName);
+
+		// 親ディレクトリを表すFileオブジェクトを取得
+		File parentDir = file.getParentFile(); // => "C:¥Users¥takezoe"
+		System.out.println(parentDir);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// パスから親ディレクトリを取得できない場合
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// Fileのパスから親ディレクトリを取得できない場合
+		File dir = new File("lib");
+		File parentDir = dir.getParentFile ( ); // => null
+		System.out.println(parentDir);
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// 一度絶対パスに変換してから親ディレクトリを取得
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// カレントディレクトリが "C:¥Users¥takezoe" の場合
+		File dir = new File("lib"); // => "lib"
+		// 絶対パスに変換
+		File absoluteDir = dir.getAbsoluteFile(); // => "C:¥Users¥takezoe¥lib"
+		System.out.println(absoluteDir);
+		// 親ディレクトリを取得
+		File parentDir = absoluteDir.getParentFile(); // => "C:¥Users¥takezoe"
+		System.out.println(parentDir);
+	}
+	```
+	
+	178.ディレクトリ内のファイル一覧を取得したい
+	```java
+	/////////////////////////////////////////////////////////////////////////////
+	// ディレクトリ内のファイルの一覧を取得する
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		// libディレクトリ内のファイル名の一覧を取得
+		String[] fileNames = dir.list();
+		for(String fileName: fileNames){
+			System.out.println(fileName);
+		}
+
+		// libディレクトリ内のファイルをFileオブジェクトの配列で取得
+		File[] files = dir.listFiles();
+		for(File file: files){
+			System.out.println(file.getAbsolutePath());
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// FilenameFilterによるフィルタリング
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		String[] fileNames = dir.list(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				// ファイル名の先頭が「.」で始まるファイルは除く
+				return !name.startsWith(".");
+			}
+		});
+
+		for(String fileName: fileNames){
+			System.out.println(fileName);
+		}
+	}
+
+	/////////////////////////////////////////////////////////////////////////////
+	// FileFilterによるフィルタリング
+	/////////////////////////////////////////////////////////////////////////////
+	{
+		File[] files = dir.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				// ファイル以外は除く
+				return pathname.isFile();
+			}
+		});
+
+		for(File file: files){
+			System.out.println(file.getAbsolutePath());
+		}
+	}
+	```
 　6.3　パス  
 　6.4　入出力  
   
